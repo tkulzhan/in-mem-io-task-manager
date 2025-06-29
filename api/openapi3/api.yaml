@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: API v1 for managing tasks
+  description: API that allows you to manage tasks in a task manager application. Features include creating, deleting, and retrieving tasks.
+
+paths:
+  /tasks:
+    post:
+      summary: Create a new task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /tasks/{taskId}:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get a specific task by ID
+      operationId: getTaskById
+      responses:
+        '200':
+          description: A single task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+    delete:
+      summary: Delete a specific task by ID
+      operationId: deleteTaskById
+      responses:
+        '204':
+          description: Task deleted successfully
+
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the task
+          example: "a81bc81b-dead-4e5d-abff-90865d1e13b1"
+        status:
+          type: string
+          description: Status of the task, can be 'pending', 'in-progress', 'canceled', 'finished'
+          example: "in-progress"
+        created_at:
+          type: string
+          format: date-time
+          description: Time when the task was created
+          example: "2025-06-29T12:00:00Z"
+        started_at:
+          type: string
+          format: date-time
+          description: Time when the task started processing
+          example: "2025-06-29T12:01:00Z"
+        finished_at:
+          type: string
+          format: date-time
+          description: Time when the task finished or was canceled
+          example: "2025-06-29T12:05:00Z"
+        processing_time:
+          type: string
+          description: Processing time in human readable format
+          example: "5 minutes"
+      required:
+        - id
+        - status
+        - created_at
+        - started_at
+        - finished_at
+        - processing_time

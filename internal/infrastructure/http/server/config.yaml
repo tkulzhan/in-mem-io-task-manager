@@ -1,0 +1,6 @@
+package: generated
+output: internal/infrastructure/http/server/generated/server.gen.go
+generate:
+  models: true
+  std-http-server: true
+  embedded-spec: true
