@@ -2,17 +2,16 @@ package service
 
 import (
 	"context"
-	"in-mem-io-task-manager/internal/domain/entity"
+	"in-mem-io-task-manager/internal/infrastructure/logger"
 )
 
 type Task interface {
-	Execute(ctx context.Context) error
+	Execute(ctx context.Context, l *logger.Logger) error
 	GetID() string
-	GetStatus() entity.TaskStatus
 }
 
 type TaskRepository interface {
-	CreateTask(ctx context.Context, task *Task) error
+	CreateTask(ctx context.Context, rt RunningTask) error
 	DeleteTask(ctx context.Context, id string) error
-	GetTaskById(ctx context.Context, id string) (*Task, error)
+	GetTaskById(ctx context.Context, id string) (RunningTask, error)
 }

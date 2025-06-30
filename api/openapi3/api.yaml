@@ -14,7 +14,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Task'
+              $ref: '#/components/schemas/CreateTaskRequest'
       responses:
         '201':
           description: Task created successfully
@@ -22,6 +22,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid request
 
   /tasks/{taskId}:
     parameters:
@@ -51,6 +53,22 @@ paths:
 
 components:
   schemas:
+    CreateTaskRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of the task (e.g., 'default', 'email', 'backup')
+          example: "default"
+        data:
+          type: object
+          description: Task-specific data fields. Varies by type.
+          example:
+            title: "Sample Task"
+            description: "This is a sample task description."
+      required:
+        - data
+
     Task:
       type: object
       properties:
@@ -58,9 +76,13 @@ components:
           type: string
           description: Unique identifier for the task
           example: "a81bc81b-dead-4e5d-abff-90865d1e13b1"
+        type:
+          type: string
+          description: Type of the task
+          example: "default"
         status:
           type: string
-          description: Status of the task, can be 'pending', 'in-progress', 'canceled', 'finished'
+          description: Status of the task ('pending', 'in-progress', 'canceled', 'finished')
           example: "in-progress"
         created_at:
           type: string
@@ -70,19 +92,29 @@ components:
         started_at:
           type: string
           format: date-time
+          nullable: true
           description: Time when the task started processing
           example: "2025-06-29T12:01:00Z"
         finished_at:
           type: string
           format: date-time
+          nullable: true
           description: Time when the task finished or was canceled
           example: "2025-06-29T12:05:00Z"
         processing_time:
           type: string
+          nullable: true
           description: Processing time in human readable format
           example: "5 minutes"
+        data:
+          type: object
+          description: Original input fields for this task
+          example:
+            title: "Sample Task"
+            description: "This is a sample task description."
       required:
         - id
+        - type
         - status
         - created_at
         - started_at

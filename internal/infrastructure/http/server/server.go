@@ -14,12 +14,12 @@ import (
 const v1BaseURL string = "/api"
 
 type Server struct {
-	address            string
+	restAddress        string
 	srv                *http.Server
 	taskManagerService service.TaskManagerService
 }
 
-func New(ctx context.Context, conf Configuration) (*Server, error) {
+func New(conf Configuration) (*Server, error) {
 	if err := conf.validate(); err != nil {
 		return nil, fmt.Errorf("validate configuration: %w", err)
 	}
@@ -40,7 +40,8 @@ func New(ctx context.Context, conf Configuration) (*Server, error) {
 	}
 
 	srv := &Server{
-		address: conf.Address,
+		restAddress:        conf.RestAddress,
+		taskManagerService: *conf.TaskManagerService,
 	}
 
 	handler := generated.HandlerWithOptions(srv, generated.StdHTTPServerOptions{
@@ -49,7 +50,7 @@ func New(ctx context.Context, conf Configuration) (*Server, error) {
 	})
 
 	server := &http.Server{
-		Addr:         conf.Address,
+		Addr:         conf.RestAddress,
 		ReadTimeout:  time.Duration(conf.ReadTimeoutSeconds) * time.Second,
 		WriteTimeout: time.Duration(conf.WriteTimeoutSeconds) * time.Second,
 		Handler:      handler,
@@ -60,7 +61,7 @@ func New(ctx context.Context, conf Configuration) (*Server, error) {
 	return srv, nil
 }
 
-func (s *Server) Start(ctx context.Context) error {
+func (s *Server) Start() error {
 	if err := s.srv.ListenAndServe(); err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {
 			return fmt.Errorf("launching HTTP server error: %w", err)
@@ -70,7 +71,7 @@ func (s *Server) Start(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) Close(ctx context.Context) error {
+func (s *Server) Close() error {
 	if err := s.srv.Shutdown(context.Background()); err != nil {
 		return fmt.Errorf("closing error: %w", err)
 	}

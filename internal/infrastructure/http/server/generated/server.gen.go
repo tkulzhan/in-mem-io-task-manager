@@ -20,29 +20,44 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// CreateTaskRequest defines model for CreateTaskRequest.
+type CreateTaskRequest struct {
+	// Data Task-specific data fields. Varies by type.
+	Data map[string]interface{} `json:"data"`
+
+	// Type The type of the task (e.g., 'default', 'email', 'backup')
+	Type *string `json:"type,omitempty"`
+}
+
 // Task defines model for Task.
 type Task struct {
 	// CreatedAt Time when the task was created
 	CreatedAt time.Time `json:"created_at"`
 
+	// Data Original input fields for this task
+	Data *map[string]interface{} `json:"data,omitempty"`
+
 	// FinishedAt Time when the task finished or was canceled
-	FinishedAt time.Time `json:"finished_at"`
+	FinishedAt *time.Time `json:"finished_at"`
 
 	// Id Unique identifier for the task
 	Id string `json:"id"`
 
 	// ProcessingTime Processing time in human readable format
-	ProcessingTime string `json:"processing_time"`
+	ProcessingTime *string `json:"processing_time"`
 
 	// StartedAt Time when the task started processing
-	StartedAt time.Time `json:"started_at"`
+	StartedAt *time.Time `json:"started_at"`
 
-	// Status Status of the task, can be 'pending', 'in-progress', 'canceled', 'finished'
+	// Status Status of the task ('pending', 'in-progress', 'canceled', 'finished')
 	Status string `json:"status"`
+
+	// Type Type of the task
+	Type string `json:"type"`
 }
 
 // CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
-type CreateTaskJSONRequestBody = Task
+type CreateTaskJSONRequestBody = CreateTaskRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -260,19 +275,22 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/7xW3W4bNxN9lQG/D3ALrKRdxQqcvUsaNNBVgybtRYMgGC1npYl3yTXJtSsYevdiSEmW",
+	"tJKR/l6JpoecM+cMz+yjqmzbWUMmeFU+Kl+tqMW4/MERBvqI/vZnuuvJB9nsnO3IBaYYojFg/CVfOe4C",
+	"W6NKJUdGvqOKa65AYqBmarQfw6/omDws1hDWHY1Vpuh3bLuGztyyYg/sAcHHCAjob+EgRk4HDnJWfUgh",
+	"klltMiWXq1LZxVeqwtPGMAVFHGBrCKtthu9ovBxncKWpxr4JVxlcUYvcyGKB1W3fXX1/iFttA9U+rQ+O",
+	"zVJtNplydNezI63KT4msz2fARdQDbqtIv/6C4QxwbgkeVmSeYD+gh+2RI3TTfDob5S9H01cfi2mZ52We",
+	"/6YyVVvXys2CikaBWxrizy7o+5PjJRtsgE3Xh622UFsHQTQTOP+ZsDUb9qtvp2kXD9YlytBU1DzP2ew5",
+	"zkzfNLiQY8H1dIZD1kNgvxi+6wlYkwlcM7ktezQgT+FNsahuisVIE+rRNc30CBd1PXqV37yc6YKKF4vi",
+	"nHSdsxV5z2b5JSIdYHi/DwAJADaw6ls04Ai1VATbeg/RzKBl0wfy31K5D+j+RAdvw+EJ+XOiFH9LFB8w",
+	"9H4I60PcP/aDq46MZrMUA2Az6pxdOvJe/tx1j6x3nXXiDgcnzsl0wZhOTOkv+Q3rXci+3uzQVY4EOn5J",
+	"w/YZ+pakY1PbIfrX7+cQVhgAm8Y+eFjbHoKFFg0uUz1eug0Tv2nbAXZdwxVGA4AfCUPvSOKqpteUrI3N",
+	"MgNNDaUVGg2OgmO6j10sFx96h+C4L+LTikn2QSpT9+R8QluM83EuUtiODHasSvUibmWqw7CKTTJJx8Sj",
+	"bZqD4tQR61yr8mBUqqQB+fDG6nX0cWsCmXjooMTJVy/ZdwNXVv93VKtS/W/yNJEn23E8Gc7izbHc0udx",
+	"w3fW+DRBpnnxjwFIBiw5h7N+N3fA95U0Td03zVoYvc7zYXfMzT02LMrtCsmU79sW3XrPJCAYekitL/9P",
+	"/E8e5WeuN+nShgINpXgb9wXWm/VcqwEl1+e/V1JbDWo4wpaulrm1+7aJDbxYw/ytlLukM63xjsJlMPm/",
+	"rs9rkDe8HbJJk0sMGBugtr3RJ2W/o3C55g4dthTIeVV+elQst8mzERNGGTsqaaZOmzU7KOzUxz5vNps/",
+	"AgAA//+0WFIlmQoAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

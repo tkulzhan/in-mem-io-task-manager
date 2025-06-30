@@ -7,25 +7,26 @@ import (
 )
 
 type TaskStorage struct {
-	tasks map[string]service.Task
+	tasks map[string]service.RunningTask
 	mu    *sync.Mutex
 }
 
 func NewTaskStorage() *TaskStorage {
 	return &TaskStorage{
-		tasks: make(map[string]service.Task),
+		tasks: make(map[string]service.RunningTask),
 		mu:    &sync.Mutex{},
 	}
 }
 
-func (ts *TaskStorage) CreateTask(task service.Task) error {
+func (ts *TaskStorage) CreateTask(rt service.RunningTask) error {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
 
-	if _, exists := ts.tasks[task.GetID()]; exists {
+	if _, exists := ts.tasks[rt.Task.GetID()]; exists {
 		return errors.NewBadRequestError("task with this ID already exists")
 	}
-	ts.tasks[task.GetID()] = task
+
+	ts.tasks[rt.Task.GetID()] = rt
 	return nil
 }
 
@@ -33,20 +34,23 @@ func (ts *TaskStorage) DeleteTask(id string) error {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
 
-	if _, exists := ts.tasks[id]; !exists {
+	_, exists := ts.tasks[id]
+	if !exists {
 		return errors.NewNotFoundError("task not found")
 	}
+
 	delete(ts.tasks, id)
 	return nil
 }
 
-func (ts *TaskStorage) GetTaskById(id string) (service.Task, error) {
+func (ts *TaskStorage) GetTaskById(id string) (service.RunningTask, error) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
 
-	task, exists := ts.tasks[id]
+	rt, exists := ts.tasks[id]
 	if !exists {
-		return nil, errors.NewNotFoundError("task not found")
+		return service.RunningTask{}, errors.NewNotFoundError("task not found")
 	}
-	return task, nil
+
+	return rt, nil
 }
