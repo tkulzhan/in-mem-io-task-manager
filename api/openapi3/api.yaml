@@ -82,8 +82,8 @@ components:
           example: "default"
         status:
           type: string
-          description: Status of the task ('pending', 'in-progress', 'canceled', 'finished')
-          example: "in-progress"
+          description: Status of the task ('pending', 'running', 'finished')
+          example: "running"
         created_at:
           type: string
           format: date-time
@@ -99,7 +99,7 @@ components:
           type: string
           format: date-time
           nullable: true
-          description: Time when the task finished or was canceled
+          description: Time when the task finished
           example: "2025-06-29T12:05:00Z"
         processing_time:
           type: string
