@@ -19,6 +19,7 @@ type Configuration struct {
 	ReadTimeoutSeconds     uint   `env:"HTTP_READ_TIME_OUT"`
 	WriteTimeoutSeconds    uint   `env:"HTTP_WRITE_TIME_OUT"`
 	ExposeAPISpecification bool   `env:"HTTP_EXPOSE_API_SPECIFICATION"`
+	MaxConcurrentTasks     int    `env:"MAX_CONCURRENT_TASKS"`
 }
 
 func NewAppConfig() (*Configuration, error) {
@@ -49,6 +50,7 @@ func setDefaults(cfg *Configuration) {
 	cfg.ExposeAPISpecification = true
 	cfg.ReadTimeoutSeconds = 30
 	cfg.WriteTimeoutSeconds = 30
+	cfg.MaxConcurrentTasks = 1000
 }
 
 func applyDefaultsIfEmpty(cfg *Configuration) {
@@ -63,5 +65,8 @@ func applyDefaultsIfEmpty(cfg *Configuration) {
 	}
 	if cfg.WriteTimeoutSeconds == 0 {
 		cfg.WriteTimeoutSeconds = 30
+	}
+	if cfg.MaxConcurrentTasks == 0 {
+		cfg.MaxConcurrentTasks = 1000
 	}
 }

@@ -6,8 +6,9 @@ import (
 )
 
 type Configuration struct {
-	L              *logger.Logger
-	TaskRepository TaskRepository
+	L                  *logger.Logger
+	TaskRepository     TaskRepository
+	MaxConcurrentTasks int
 }
 
 func (conf Configuration) validate() error {

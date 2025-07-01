@@ -12,6 +12,7 @@ import (
 type TaskManagerService struct {
 	l              *logger.Logger
 	taskRepository TaskRepository
+	semaphore      chan struct{}
 }
 
 type RunningTask struct {
@@ -26,6 +27,7 @@ func NewTaskManagerService(conf Configuration) (*TaskManagerService, error) {
 	return &TaskManagerService{
 		l:              conf.L,
 		taskRepository: conf.TaskRepository,
+		semaphore:      make(chan struct{}, conf.MaxConcurrentTasks),
 	}, nil
 }
 
@@ -51,7 +53,20 @@ func (s *TaskManagerService) CreateTask(ctx context.Context, task Task) error {
 	}
 
 	go func() {
-		_ = task.Execute(execCtx, s.l)
+		s.semaphore <- struct{}{}
+		defer func() { <-s.semaphore }()
+
+		err := task.Execute(execCtx, s.l)
+		if err != nil {
+			s.l.Error("task execution failed", map[string]interface{}{
+				"task_id": task.GetID(),
+				"error":   err.Error(),
+			})
+		} else {
+			s.l.Debug("task executed successfully", map[string]interface{}{
+				"task_id": task.GetID(),
+			})
+		}
 	}()
 
 	return nil

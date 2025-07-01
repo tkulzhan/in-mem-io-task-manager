@@ -37,7 +37,7 @@ func New(ctx context.Context) (*Application, error) {
 		return nil, fmt.Errorf("set repositories: %w", err)
 	}
 
-	if err := app.setService(); err != nil {
+	if err := app.setService(conf); err != nil {
 		return nil, fmt.Errorf("set service: %w", err)
 	}
 
@@ -52,6 +52,8 @@ func (a *Application) setLogger(conf *Configuration) error {
 	logger := logger.New(conf.LogLevel)
 
 	a.l = logger
+
+	a.l.Info(fmt.Sprintf("Config: %+v", conf), nil)
 
 	return nil
 }
@@ -68,10 +70,11 @@ func (a *Application) setRepositories() error {
 	return nil
 }
 
-func (a *Application) setService() error {
+func (a *Application) setService(conf *Configuration) error {
 	taskManagerService, err := service.NewTaskManagerService(service.Configuration{
-		L:              a.l,
-		TaskRepository: a.taskRepository,
+		L:                  a.l,
+		TaskRepository:     a.taskRepository,
+		MaxConcurrentTasks: conf.MaxConcurrentTasks,
 	})
 	if err != nil {
 		return fmt.Errorf("creating task Manager Service: %w", err)
