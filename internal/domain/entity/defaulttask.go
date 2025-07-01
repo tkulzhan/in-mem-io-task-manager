@@ -2,6 +2,7 @@ package entity
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"in-mem-io-task-manager/internal/infrastructure/logger"
 	"math/rand"
@@ -83,6 +84,40 @@ func NewDefaultTask(title, description string) *DefaultTask {
 		Status:      StatusPending,
 		CreatedAt:   time.Now(),
 	}
+}
+
+func (t *DefaultTask) MarshalJSON() ([]byte, error) {
+	type Alias DefaultTask
+
+	var startedAt, finishedAt *string
+	if t.StartedAt != nil {
+		s := t.StartedAt.Format(time.RFC3339)
+		startedAt = &s
+	}
+	if t.FinishedAt != nil {
+		s := t.FinishedAt.Format(time.RFC3339)
+		finishedAt = &s
+	}
+
+	var processingTime *string
+	if t.ProcessingTime != nil {
+		s := t.ProcessingTime.String()
+		processingTime = &s
+	}
+
+	return json.Marshal(&struct {
+		*Alias
+		CreatedAt      string  `json:"created_at"`
+		StartedAt      *string `json:"started_at,omitempty"`
+		FinishedAt     *string `json:"finished_at,omitempty"`
+		ProcessingTime *string `json:"processing_time,omitempty"`
+	}{
+		Alias:          (*Alias)(t),
+		CreatedAt:      t.CreatedAt.Format(time.RFC3339),
+		StartedAt:      startedAt,
+		FinishedAt:     finishedAt,
+		ProcessingTime: processingTime,
+	})
 }
 
 func generateTaskID() string {

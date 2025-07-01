@@ -29,7 +29,14 @@ func (s *Server) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(task); err != nil {
+
+	data, err := task.MarshalJSON()
+	if err != nil {
+		errors.HandleError(w, errors.NewInternalError("failed to marshal response"))
+		return
+	}
+
+	if _, err := w.Write(data); err != nil {
 		errors.HandleError(w, errors.NewInternalError("failed to send response"))
 	}
 }
@@ -45,11 +52,17 @@ func (s *Server) GetTaskById(w http.ResponseWriter, r *http.Request, taskId stri
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(task); err != nil {
+
+	data, err := task.MarshalJSON()
+	if err != nil {
+		errors.HandleError(w, errors.NewInternalError("failed to marshal response"))
+		return
+	}
+
+	if _, err := w.Write(data); err != nil {
 		errors.HandleError(w, errors.NewInternalError("failed to send response"))
 	}
 }
-
 
 func (s *Server) DeleteTaskById(w http.ResponseWriter, r *http.Request, taskId string) {
 	ctx := r.Context()

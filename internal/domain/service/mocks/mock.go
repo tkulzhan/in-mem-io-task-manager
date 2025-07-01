@@ -64,6 +64,21 @@ func (mr *MockTaskMockRecorder) GetID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetID", reflect.TypeOf((*MockTask)(nil).GetID))
 }
 
+// MarshalJSON mocks base method.
+func (m *MockTask) MarshalJSON() ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarshalJSON")
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MarshalJSON indicates an expected call of MarshalJSON.
+func (mr *MockTaskMockRecorder) MarshalJSON() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarshalJSON", reflect.TypeOf((*MockTask)(nil).MarshalJSON))
+}
+
 // MockTaskRepository is a mock of TaskRepository interface.
 type MockTaskRepository struct {
 	ctrl     *gomock.Controller

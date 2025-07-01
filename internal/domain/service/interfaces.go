@@ -10,6 +10,7 @@ import (
 type Task interface {
 	Execute(ctx context.Context, l *logger.Logger) error
 	GetID() string
+	MarshalJSON() ([]byte, error)
 }
 
 type TaskRepository interface {
