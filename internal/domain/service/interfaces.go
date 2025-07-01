@@ -5,6 +5,8 @@ import (
 	"in-mem-io-task-manager/internal/infrastructure/logger"
 )
 
+//go:generate mockgen -source=interfaces.go -destination=mocks/mock.go
+
 type Task interface {
 	Execute(ctx context.Context, l *logger.Logger) error
 	GetID() string
